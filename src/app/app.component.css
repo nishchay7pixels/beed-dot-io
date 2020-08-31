@@ -1,0 +1,13 @@
+#video-grid{
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-auto-rows: 300px;
+    grid-gap: 10px;
+}
+
+:host ::ng-deep .video-element{
+    width: 100%;
+    height: 100%;
+    object-fit: pare;
+    
+}
