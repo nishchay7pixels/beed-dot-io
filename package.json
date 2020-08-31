@@ -8,7 +8,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "devStart": "nodemon server.js"
+    "devStart": "nodemon server.js",
+    "postinstall": "ng build --aot -prod"
   },
   "private": true,
   "dependencies": {
