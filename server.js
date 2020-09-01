@@ -13,7 +13,7 @@ app.use('/peerjs', peerServer);
 //end here
 
 //app.use(express.static('public'))
-app.use(express.static(__dirname +'./dist/beed-dot-io')) //added __dirname +
+app.use(express.static(__dirname +'/dist/')) //added __dirname +
 
 // app.get('/', (req, res) => {
 //     res.redirect(`/${uuidV4()}`);
