@@ -17,7 +17,7 @@ export class AppComponent {
     path: '/peerjs',
     host: '/',
     //port: 3001,
-    port: 3000
+    port: 443
   });
   connectedPeer = {};
   constructor(private socketService : SocketioService){
