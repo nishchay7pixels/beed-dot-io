@@ -98,7 +98,7 @@ export class AppComponent {
     
   }
   createRoom(){
-    let roomId = Date.now.toString();
+    let roomId = Date.now().toString();
     this.socketService.createRoom(roomId);
   }
   joinRoom(){
