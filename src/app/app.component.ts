@@ -17,7 +17,8 @@ export class AppComponent {
     path: '/peerjs',
     host: '/',
     //port: 3001,
-    port: 443
+    port: 443,
+    config: {'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }]}
   });
   connectedPeer = {};
   constructor(private socketService : SocketioService){
