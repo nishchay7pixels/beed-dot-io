@@ -31,8 +31,13 @@ io.on('connection', (socket)=>{
     socket.on('disconnect', ()=>{
         console.log("User Disconnected");
     });
-    socket.on('create-room', ()=>{
-        let roomId = `${uuidV4()}`;
+    // socket.on('create-room', ()=>{
+    //     let roomId = `${uuidV4()}`;
+    //     //socket.join(roomId);
+    //     socket.emit('created', roomId);
+    // });
+    socket.on('create-room', (roomId)=>{
+        
         //socket.join(roomId);
         socket.emit('created', roomId);
     });

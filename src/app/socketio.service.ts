@@ -16,8 +16,8 @@ export class SocketioService {
   constructor() { 
   }
 
-  createRoom(){
-    this.socket.emit('create-room');
+  createRoom(roomId){
+    this.socket.emit('create-room', roomId);
   }
 
   joinRoom(roomId: String, peerid: String){
