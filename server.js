@@ -27,10 +27,8 @@ app.get('/:room', (req, res) =>{
     res.render('room', {roomId: req.params.room});
 });
 io.on('connection', (socket)=>{
-    console.log("User Connected");
-    socket.on('disconnect', ()=>{
-        console.log("User Disconnected");
-    });
+    //console.log("User Connected");
+    
     // socket.on('create-room', ()=>{
     //     let roomId = `${uuidV4()}`;
     //     //socket.join(roomId);
@@ -48,8 +46,6 @@ io.on('connection', (socket)=>{
         //console.log("RoomId:" + roomId+"||UserId:"+userId);
         socket.join(roomId);
         socket.to(roomId).broadcast.emit('user-connected', userId);
-        console.log(userId);
-
         socket.on('disconnect', ()=>{
             socket.to(roomId).broadcast.emit('user-left', userId);
         });
