@@ -119,7 +119,7 @@ export class AppComponent {
     
   }
   createRoom(){
-    console.log('createRoom')
+    console.log('createRoom');
     let roomId = Date.now().toString();
     this.socketService.createRoom(roomId);
   }
