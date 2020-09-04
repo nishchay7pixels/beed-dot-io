@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { RoomConnectionService} from '../app/room-connection.service';
 import { SocketioService } from './socketio.service';
 import Peer from 'peerjs';
+import { VirtualTimeScheduler } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -14,10 +15,10 @@ export class AppComponent {
   roomIdDisplay: String;
   video_grid : any;
   myPeer = new Peer(undefined, {
-    path: '/peerjs',
+    //path: '/peerjs', //Comment it out for local
     host: '/',
-    //port: 3001,
-    port: 443
+    port: 3001,
+    //port: 443 // only usd for heroku
   });
   connectedPeer = {};
   constructor(private socketService : SocketioService){
@@ -31,6 +32,7 @@ export class AppComponent {
         this.addVideoStream(myVideo, stream);
         this.myPeer.on('call', call=>{
           call.answer(stream);
+          
           const video = document.createElement('video');
           call.on('stream', userVideoStream =>{
             this.addVideoStream(video,userVideoStream);
@@ -39,9 +41,13 @@ export class AppComponent {
         this.socketService.socket.on('user-connected', (userId: String)=>{
           //console.log(data);
           this.connectToNewUser(userId, stream);
+          this.sendMyPeerId(); // send your user id to new connected user
         });
     });
 
+  }
+  sendMyPeerId(){
+    this.socketService.sendMyPeerId(this.myPeer.id, this.myPeer.call);
   }
 
   connectToNewUser(userId, stream){
@@ -54,7 +60,8 @@ export class AppComponent {
     call.on('close', () =>{
       video.remove();
     });
-    this.connectedPeer[userId] = call;
+    this.addUser(userId,call);
+    //this.connectedPeer[userId] = call;
   }
   addVideoStream(video, stream){
     video.srcObject = stream;
@@ -85,15 +92,24 @@ export class AppComponent {
       //console.log(roomId);
     });
     this.myPeer.on('open', id =>{
-      this.socketService.joinRoom(this.roomId, id);
+      //this.socketService.joinRoom(this.roomId, id);
     });
     this.socketService.socket.on('user-left', userId=>{
       
       this.removeUser(userId);
     });
+    this.socketService.socket.on('peer-id-shared', (userId,call)=>{
+      this.addUser(userId,call);
+    });
+  }
+  addUser(userId, call){
+    if(!this.connectedPeer[userId]) {
+      this.connectedPeer[userId]= call;
+    }
   }
   removeUser(userId){
-    
+
+      //this.connectedPeer[userId].destroy();
       this.connectedPeer[userId].close();
     
   }
@@ -102,7 +118,7 @@ export class AppComponent {
     this.socketService.createRoom(roomId);
   }
   joinRoom(){
-    this.socketService.joinRoom(this.roomId, this.myPeer.id);
+    this.socketService.joinRoom(this.roomIdDisplay, this.myPeer.id);
     
   }
 }
