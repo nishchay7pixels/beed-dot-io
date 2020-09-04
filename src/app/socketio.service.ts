@@ -4,7 +4,7 @@ import { Observable, of } from 'rxjs';
 
 export const environment = {
   production : false,
-  SOCKET_ENDPOINT: '/'
+  SOCKET_ENDPOINT: 'http://localhost:3000/'
 };
 
 @Injectable({
@@ -26,8 +26,12 @@ export class SocketioService {
     //   //console.log(data);
     // });
   }
+
+  sendMyPeerId(userId, call, roomId){
+    this.socket.emit('peer-id-shared', userId, call, roomId); //share user peer id for new joind peer to save it
+  }
   setupSocketConnection(){
-    this.socket = io(environment.SOCKET_ENDPOINT);
+    this.socket = io({url:environment.SOCKET_ENDPOINT,reconnection:false});
     this.socket.emit('my message', 'Hello There from Angular');
     this.socket.on('my broadcast', (data: String)=>{
       console.log(data);

@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { RoomConnectionService} from '../app/room-connection.service';
 import { SocketioService } from './socketio.service';
 import Peer from 'peerjs';
-import { VirtualTimeScheduler } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -19,6 +18,7 @@ export class AppComponent {
     host: '/',
     port: 3001,
     //port: 443 // only usd for heroku
+    config: {'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }]}
   });
   connectedPeer = {};
   constructor(private socketService : SocketioService){
@@ -42,12 +42,13 @@ export class AppComponent {
           //console.log(data);
           this.connectToNewUser(userId, stream);
           this.sendMyPeerId(); // send your user id to new connected user
+          console.log("my data shared");
         });
     });
 
   }
   sendMyPeerId(){
-    this.socketService.sendMyPeerId(this.myPeer.id, this.myPeer.call);
+    this.socketService.sendMyPeerId(this.myPeer.id, this.myPeer.call, this.roomId);
   }
 
   connectToNewUser(userId, stream){
@@ -78,6 +79,7 @@ export class AppComponent {
     
   }
   ngOnInit(): void {
+    console.log(this.roomId);
     //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
     //Add 'implements OnInit' to the class.
 
@@ -91,19 +93,22 @@ export class AppComponent {
       this.roomIdDisplay = data;
       //console.log(roomId);
     });
-    this.myPeer.on('open', id =>{
-      //this.socketService.joinRoom(this.roomId, id);
-    });
+    // this.myPeer.on('open', id =>{
+    //   this.socketService.joinRoom(this.roomId, id); Posibally causing to connect as soon as i open page
+    // });
     this.socketService.socket.on('user-left', userId=>{
-      
+      console.log("user left");
       this.removeUser(userId);
     });
     this.socketService.socket.on('peer-id-shared', (userId,call)=>{
+      console.log("Recieved Peer id");
       this.addUser(userId,call);
     });
   }
   addUser(userId, call){
-    if(!this.connectedPeer[userId]) {
+    console.log("Outside");
+    if(!(userId in this.connectedPeer)) {
+      console.log("Inside");
       this.connectedPeer[userId]= call;
     }
   }
@@ -114,11 +119,13 @@ export class AppComponent {
     
   }
   createRoom(){
+    console.log('createRoom')
     let roomId = Date.now().toString();
     this.socketService.createRoom(roomId);
   }
   joinRoom(){
-    this.socketService.joinRoom(this.roomIdDisplay, this.myPeer.id);
+    this.socketService.joinRoom(this.roomId, this.myPeer.id);
     
   }
+  
 }

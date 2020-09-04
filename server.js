@@ -5,16 +5,16 @@ const app = express();
 const server = require('http').Server(app)
 const io = require('socket.io')(server)
 const {v4: uuidV4} = require('uuid')
-//code to run peerjs server as well on express
-const { ExpressPeerServer } = require('peer');
-const peerServer = ExpressPeerServer(server,{
-    debug: true,
-});
-app.use('/peerjs', peerServer);
+//code to run peerjs server as well on express (Comment this code for local)
+//const { ExpressPeerServer } = require('peer');
+//const peerServer = ExpressPeerServer(server,{
+//    debug: true,
+//});
+//app.use('/peerjs', peerServer);
 //end here
 
 //app.use(express.static('public'))
-app.use(express.static(__dirname +'/dist/')) //added __dirname +
+app.use(express.static('./dist/beed-dot-io/')) //added __dirname +
 
 // app.get('/', (req, res) => {
 //     res.redirect(`/${uuidV4()}`);
@@ -27,10 +27,15 @@ app.get('/*', (req, res)=>{
 app.get('/:room', (req, res) =>{
     res.render('room', {roomId: req.params.room});
 });
+
+// Reconnects on disconnection
+
 io.on('connection', (socket)=>{
     console.log("User Connected");
     socket.on('disconnect', ()=>{
         console.log("User Disconnected");
+        //socket.connect(callback);
+        socket.disconnect();
     });
     // socket.on('create-room', ()=>{
     //     let roomId = `${uuidV4()}`;
@@ -39,21 +44,24 @@ io.on('connection', (socket)=>{
     // });
     socket.on('create-room', (roomId)=>{
         
-        //socket.join(roomId);
+        //socket.join(roomId); //enabled 
         socket.emit('created', roomId);
     });
     socket.on('my message', (msg)=>{
         io.emit('my broadcast', `server: ${msg}`);
     });
     socket.on('join-room', (roomId, userId)=>{
-        //console.log("RoomId:" + roomId+"||UserId:"+userId);
+        console.log("RoomId:" + roomId+"||UserId:"+userId);
         socket.join(roomId);
         socket.to(roomId).broadcast.emit('user-connected', userId);
         console.log(userId);
-
         socket.on('disconnect', ()=>{
             socket.to(roomId).broadcast.emit('user-left', userId);
         });
+    });
+    socket.on('peer-id-shared', (userId, call, roomId)=>{
+        socket.to(roomId).broadcast.emit('peer-id-shared', userId, call);
+        console.log('Share-my-peerid');
     });
 
 });
